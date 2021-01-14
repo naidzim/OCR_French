@@ -6,6 +6,7 @@ def cv2_show(name, img):
     cv2.imshow(name, img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    print('1')
 
 
 image = cv2.imread('image1.png')
