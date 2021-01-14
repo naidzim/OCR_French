@@ -1,7 +1,7 @@
 import cv2
 import pytesseract
 
-
+###Name = ###
 def cv2_show(name, img):
     cv2.imshow(name, img)
     cv2.waitKey(0)
