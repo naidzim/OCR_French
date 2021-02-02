@@ -25,15 +25,15 @@ def rr(wraped):
     ref = cv2.threshold(wraped, 100, 255, cv2.THRESH_BINARY)[1]
     cv2_show('ref',ref)
     ref=cv2.resize(ref,None,fx=0.5,fy=0.5)
-    cv2.imwrite("F:/test.jpg", ref)
+    cv2.imwrite("F:/image3.jpg", ref)
 
 
-image = cv2.imread('image1.png')
-resizeimg = cv2.resize(image, None, fx=0.5, fy=0.5)
+image = cv2.imread('image3.jpg')
+resizeimg = cv2.resize(image, None, fx=0.2, fy=0.2)
 cv2_show('resize', resizeimg)
 
-text = pytesseract.image_to_string('image1.png', lang = 'fra')
-print(text)
+#text = pytesseract.image_to_string('image3.png', lang = 'fra')
+#print(text)
 
 # pretraitement
 gray = cv2.cvtColor(resizeimg, cv2.COLOR_BGR2GRAY)
