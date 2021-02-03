@@ -35,6 +35,7 @@ image = cv2.imread('image3.jpg')
 resizeimg = cv2.resize(image, None, fx=0.2, fy=0.2)
 cv2_show('resize', resizeimg)
 
+# detecter avec langue français
 #text = pytesseract.image_to_string('image3.png', lang = 'fra')
 #print(text)
 
@@ -45,11 +46,12 @@ cv2_show('gray', gray)
 # cv2_show('GaussianBlur', blur)
 # dst = cv2.equalizeHist(gray)
 # cv2_show("dst", dst)
-mediu = cv2.medianBlur(gray, 39)
+mediu = cv2.medianBlur(gray, 41)
 cv2_show("dst", mediu)
 edged = cv2.Canny(mediu, 50, 100)
 cv2_show('edged', edged)
 
+# HoughLinesP ne marche pas dans notre cas
 # 画出直线，画出屏幕四周的线，相交可得出四个顶点。 画不出来 而且屏幕边框的线并不平行，
 # minLineLength = 100
 # maxLineGap = 30
@@ -65,46 +67,61 @@ cv2_show('edged', edged)
 # cv2_show("houghline", resizeimg)
 
 
+
 # chercher le contour
+
+# trouver les coutours
 cnts, hierancy = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 # liste les contours dans l'ordre de plus large vers plus petite, on list les premières 5 contours
 cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
 print('cnts', len(cnts))
-#print("cnt 0 = ", cnts[0])
-i = 0
-screenCnt = 0
+
+approx=cv2.approxPolyDP(cnts[0], 10, True)  # cnts[0] = le coutour le plus large , True = contour fermé
+print("search lenapprox", len(approx))
+print("approx = ", approx)
+# points = fonctions.my_point(approx[0][0][0], approx[0][0][1])
+# print(points)
+
+# lister tous les points
+points = []
+for j in range(len(approx)):
+    npoints = fonctions.my_point(approx[j][0][0], approx[j][0][1])
+    points.append(npoints)
+#    print(points)
+
+four_points = points[:]     # copier la tableau
+
+# calculer les distances entre les points
+for j in range(len(points)):
+    print("j =", j)
+    for k in range(len(points[j+1:])):
+        print("k =", k)
+        # print(points[j], points[j+k+1])
+        d = fonctions.getDistance(points[j], points[j+k+1])
+        # print("d = ", d)
+        if d < 200:
+            # print("point in points = ", points[j+k+1])
+            # print("remove points", four_points[j+k+1], "number = ", j+k+1)
+            four_points.pop(j+k+1)                           # remove with index
+            four_points.insert(j+k+1, (0, 0))
+            # print("temp = ", four_points)
 
 
-for c in cnts:
-    print("i = ", i)
-    i = i+1
-    peri = cv2.arcLength(c, True)  # length de contour fermé
-    print("length de contour = ", peri)
-    approx=cv2.approxPolyDP(c, 10, True)  # 检测出来的轮廓可能是离散的点，故因在此做近似计算，使其形成一个矩形  # True = fermé
-    print("search lenapprox", len(approx))
-    print("approx = ", approx)
+print("four_points= ", four_points)
+print("points= ", points)
 
-    screenCnt = approx
-    image = resizeimg.copy()
-    cv2.drawContours(image, [screenCnt], -1, (0, 0, 255), 2)  # tracer les contours，-1 répresente tracer tous les contours
-    cv2_show('contour', image)
-    # redresser l'image
-    # wraped = four_point_transform(image, screenCnt.reshape(4, 2)*10)
-    # wraped = cv2.resize(wraped, None, fx=0.1, fy=0.1)
-    # cv2_show('wrap', wraped)
+# remove all (0,0)
+for i in range(len(four_points) - 4):
+    four_points.remove((0, 0))
+print("four_points= ", four_points)
 
 
-
-if screenCnt.any() == 0:
-    print("no contour")
-else:
-    print("there r contour")
-    # image = resizeimg.copy()
-    # cv2.drawContours(image, [screenCnt], -1, (0, 0, 255), 2)  # tracer les contours，-1 répresente tracer tous les contours
-    # cv2_show('contour', image)
-    # # redresser l'image
-    # wraped = four_point_transform(image, screenCnt.reshape(4, 2))
-    # wraped = cv2.resize(wraped, None, fx=0.5, fy=0.5)
-    # cv2_show('wrap', wraped)
-    #rr(wraped)
-
+screenCnt = np.array(four_points)
+print("screenCnt= ", screenCnt)
+image = resizeimg.copy()
+cv2.drawContours(image, [screenCnt], -1, (0, 0, 255), 2)  # tracer les contours，-1 répresente tracer tous les contours
+cv2_show('contour', image)
+# redresser l'image
+wraped = four_point_transform(image, screenCnt.reshape(4, 2))
+wraped = cv2.resize(wraped, None, fx=0.5, fy=0.5)
+cv2_show('wrap', wraped)

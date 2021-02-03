@@ -1,16 +1,21 @@
 import cv2
 import numpy as np
 
+
 # get grayscale image
 def get_grayscale(image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 
 # noise removal
-def remove_noise(image):
+def remove_noise_median(image):
     return cv2.medianBlur(image, 5)
 
 
+def remove_noise_Gaussian(imgae):
+    return cv2.GaussianBlur(imgae, (5, 5), 0)
+
+  
 # thresholding
 def thresholding(image):
     return cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
@@ -57,3 +62,15 @@ def deskew(image):
 # template matching
 def match_template(image, template):
     return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
+
+
+def getDistance(point1,point2):
+    import math
+    d_x = abs(point2[0]-point1[0])
+    d_y = abs(point2[1]-point1[1])
+    distance = math.sqrt(d_x ** 2 + d_y ** 2)
+    return distance
+
+
+def my_point(x,y):
+    return (x,y)
