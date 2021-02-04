@@ -72,5 +72,5 @@ def getDistance(point1,point2):
     return distance
 
 
-def my_point(x,y):
-    return (x,y)
+def my_point(x, y):
+    return (x, y)
