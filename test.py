@@ -122,15 +122,18 @@ def getHProjection(image):
     # Un tableau de longueur cohérent avec la hauteur de l'image
     h_ = [0] * h
     # Comptez le nombre de pixels blancs dans chaque ligne
+    text_x = []
     for y in range(h):
         for x in range(w):
             if image[y, x] == 255:
                 h_[y] += 1
     # image de projection horizontale
     for y in range(h):
+        print("length h_y = ", h_[y])
         for x in range(h_[y]):
             hProjection[y, x] = 255
-    cv2_show('hProjection2', hProjection)
+
+    cv2_show('hProjection', hProjection)
 
     return h_
 
