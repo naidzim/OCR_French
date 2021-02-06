@@ -88,7 +88,7 @@ def getCorrect():
     cv2.waitKey()
     cv2.imwrite("imagerotate.jpg", PartImg)
 
-    return rotateImg
+    return PartImg
 
 
 def showAndWaitKey(winName, img):
@@ -97,4 +97,4 @@ def showAndWaitKey(winName, img):
 
 
 if __name__ == "__main__":
-    r = getCorrect()
+    p = getCorrect()

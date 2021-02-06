@@ -2,6 +2,27 @@ import cv2
 import numpy as np
 import pytesseract
 
+
+def Getimage(ImageP):
+    # read image
+    ImageP = cv2.imread(ImageP)
+    ImageP = cv2.resize(ImageP, None, fx=0.5, fy=0.5)
+    cv2_show('ImageP', ImageP)
+    # GRAY
+    image = cv2.cvtColor(ImageP, cv2.COLOR_BGR2GRAY)
+    showAndWaitKey('gray', image)
+    # binaire
+    retval, img = cv2.threshold(image, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+    showAndWaitKey('binary', img)
+
+    imagec = img.copy()
+    imagec = cv2.resize(imagec, None, fx=0.5, fy=0.5)
+    # redresserImage = cv2.resize(redresserImage, None, fx=0.5, fy=0.5)
+    (h, w) = imagec.shape
+
+    return w, imagec, ImageP
+
+
 def cv2_show(name, img):
     cv2.namedWindow(name,0)
     cv2.imshow(name, img)
@@ -12,14 +33,6 @@ def cv2_show(name, img):
 def showAndWaitKey(winName, img):
     cv2.imshow(winName, img)
     cv2.waitKey()
-
-
-def GetRedresserImage():
-    image = cv2.imread('imagerotate.jpg')
-    image = cv2.resize(image, None, fx=0.5, fy=0.5)
-    cv2_show('image', image)
-
-    return image
 
 
 def GetHProjection(image):
@@ -65,11 +78,12 @@ def GetVProjection(image):
     return w_
 
 
-def GetHWposition(H, w, img, redresserImage):
+def GetHWposition(H, w, img, ImageP):
     """
     :param H: H = GetHProjection
     :param w: w = (h, w) = imagec.shape
     :param img: image binaire resize
+    :param ImageP:
     :return:
     """
     Position = []
@@ -113,18 +127,43 @@ def GetHWposition(H, w, img, redresserImage):
 
     #Séparer les lettres
     for m in range(len(Position)):
-         # cv2.rectangle(redresserImage, (Position[m][0], Position[m][1]), (Position[m][2], Position[m][3]), (0, 229, 238), 1)      # x1,y1 x2,y2
-         cv2.rectangle(redresserImage, (2*Position[m][0], 2*Position[m][1]), (2*Position[m][2], 2*Position[m][3]), (0, 229, 255), 1)
+         # cv2.rectangle(ImageP, (Position[m][0], Position[m][1]), (Position[m][2], Position[m][3]), (0, 229, 238), 1)      # x1,y1 x2,y2
+         cv2.rectangle(ImageP, (2*Position[m][0], 2*Position[m][1]), (2*Position[m][2], 2*Position[m][3]), (0, 229, 255), 1)
          # print("Position[m][0]", Position[m][0])
          # print("Position[m][1]", Position[m][1])
          # print("Position[m][2]", Position[m][2])
          # print("Position[m][3]", Position[m][3])
 
-    cv2.imshow('img', redresserImage)
+    cv2.imshow('img', ImageP)
     cv2.waitKey(0)
 
+    return Position
 
-    img = cv2.cvtColor(redresserImage, cv2.COLOR_BGR2GRAY)
+
+def Reconna1(Position, ImageP):
+    img = cv2.cvtColor(ImageP, cv2.COLOR_BGR2GRAY)
+    retval, img = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+    showAndWaitKey('binary', img)
+    dst = cv2.equalizeHist(img)
+
+    # for m in range(len(Position)):
+    #     lettre = dst[2*Position[m][1]-5:2*Position[m][3]+5, 2*Position[m][0]-5:2*Position[m][2]+5]   # [y1,y2] [x1,x2]
+    #     lettre = cv2.resize(lettre, None, fx=2, fy=2)
+    #     if m == 0:
+    #         llettre = lettre
+    #     else:
+    #         llettre = cv2.hconcat([llettre, lettre])
+
+    # cv2.imshow('llettre', llettre)
+    cv2.imshow('lettre', dst)
+    text = pytesseract.image_to_string(dst, lang='fra')
+    print(text)
+    cv2.waitKey(0)
+    cv2.destroyWindow('lettre')
+
+
+def Reconna2(Position, ImageP):
+    img = cv2.cvtColor(ImageP, cv2.COLOR_BGR2GRAY)
     retval, img = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
     showAndWaitKey('binary', img)
     dst = cv2.equalizeHist(img)
@@ -135,33 +174,19 @@ def GetHWposition(H, w, img, redresserImage):
 
         cv2.imshow('lettre', lettre)
         text = pytesseract.image_to_string(lettre, lang='fra')
-
         print(text)
         cv2.waitKey(0)
         cv2.destroyWindow('lettre')
 
 
-
 if __name__ == "__main__":
-    # read image
-    redresserImage = GetRedresserImage()
-    # GRAY
-    image = cv2.cvtColor(redresserImage, cv2.COLOR_BGR2GRAY)
-    showAndWaitKey('gray', image)
-    # binaire
-    retval, img = cv2.threshold(image, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
-    showAndWaitKey('binary', img)
-
-    imagec = img.copy()
-    imagec = cv2.resize(imagec, None, fx=0.5, fy=0.5)
-    # redresserImage = cv2.resize(redresserImage, None, fx=0.5, fy=0.5)
-    (h, w) = imagec.shape
-
+    imageP = 'imagerotate.jpg'
+    w, imagec, ImageP = Getimage(imageP)
     # Projection
     H = GetHProjection(imagec)
     # Projection
     W = GetVProjection(imagec)
 
-    Position = GetHWposition(H, w, imagec, redresserImage)
-
+    Position = GetHWposition(H, w, imagec, ImageP)
+    Reconna2(Position, ImageP)
 
