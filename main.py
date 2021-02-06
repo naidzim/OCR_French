@@ -50,15 +50,11 @@ for c in cnts:
     i = i+1
     peri = cv2.arcLength(c, True)  # length de contour fermé
     print("length de contour = ", peri)
-    approx=cv2.approxPolyDP(c, 0.02*peri, True)  # 检测出来的轮廓可能是离散的点，故因在此做近似计算，使其形成一个矩形  # True = fermé
+    approx=cv2.approxPolyDP(c, 0.02*peri, True)  # True = fermé
     print("search lenapprox", len(approx))
-
 
     if len(approx) == 4:
         screenCnt = approx
-        #print("lenapprox = ", approx)
-        print("lenapprox", len(approx))
-        # print("screenCnt = ", screenCnt)
         break
     else:
         flag = 1
@@ -80,5 +76,5 @@ else:
     cwraped = cv2.resize(cwraped, None, fx=0.5, fy=0.5)
     cv2_show('wrap', cwraped)
 
-    cv2.imwrite("image5.jpg", wraped)
+    cv2.imwrite("image4contour.jpg", wraped)
     print('img saved')
