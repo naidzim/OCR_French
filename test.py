@@ -99,9 +99,9 @@ def Redresser(resizeimg, four_points):
 
     # redresser l'image
     wraped = four_point_transform(image, coordonne.reshape(4, 2))
-    wraped = cv2.resize(wraped, None, fx=0.5, fy=0.5)
+    wraped = cv2.resize(wraped, None, fx=1, fy=1)
     cv2_show('wrap', wraped)
-    cv2.imwrite("image5.jpg", wraped)
+    cv2.imwrite("image5test.jpg", wraped)
     return wraped
 
 
