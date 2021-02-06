@@ -19,7 +19,7 @@ def cv2_show(name, img):
     cv2.destroyAllWindows()
 
 
-image = cv2.imread('image4.jpg')
+image = cv2.imread('image3.jpg')
 
 cv2_show('image', image)
 
@@ -76,5 +76,5 @@ else:
     cwraped = cv2.resize(cwraped, None, fx=0.5, fy=0.5)
     cv2_show('wrap', cwraped)
 
-    cv2.imwrite("image4contour.jpg", wraped)
+    cv2.imwrite("imagecontour.jpg", wraped)
     print('img saved')
