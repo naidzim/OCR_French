@@ -112,7 +112,7 @@ def GetHWposition(H, w, img, ImageP):
         Wend = 0
         W_Start = 0
         W_End = 0
-        cnt = 0
+
         for j in range(len(W)):
             if W[j] > 0 and Wstart == 0:
                 W_Start = j
@@ -122,8 +122,8 @@ def GetHWposition(H, w, img, ImageP):
                 W_End = j
                 Wstart = 0
                 Wend = 1
-                cnt += 1
-            if cnt > 4 and Wend == 1:
+
+            if Wend == 1:
                 Position.append([W_Start, H_Start[i], W_End, H_End[i]])
                 Wend = 0
 
