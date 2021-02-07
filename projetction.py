@@ -17,7 +17,6 @@ def Getimage(ImageP):
 
     imagec = img.copy()
     imagec = cv2.resize(imagec, None, fx=0.5, fy=0.5)
-    # redresserImage = cv2.resize(redresserImage, None, fx=0.5, fy=0.5)
     (h, w) = imagec.shape
 
     return w, imagec, ImageP
@@ -40,19 +39,19 @@ def GetHProjection(image):
     # Hauteur et largeur de l'image
     (h, w) = image.shape
     # Un tableau de longueur cohérent avec la hauteur de l'image
+    # pour stocker les pixels blancs dans chaque lignes
     h_ = [0] * h
     # Comptez le nombre de pixels blancs dans chaque ligne
     for y in range(h):
         for x in range(w):
             if image[y, x] == 255:
                 h_[y] += 1
-    # image de projection horizontale
-    for y in range(h):
-        if h_[y] < 200:
-            for x in range(h_[y]):
-                hProjection[y, x] = 255
-    # cv2_show('hProjection', cv2.resize(hProjection, None, fx=0.5, fy=0.5))
-    showAndWaitKey('hProjection', hProjection)
+    # image de projection horizontale (Debug)
+    # for y in range(h):
+    #     if h_[y] < 200:
+    #     for x in range(h_[y]):
+    #         hProjection[y, x] = 255
+    # showAndWaitKey('hProjection', hProjection)
     # print(h_)
     return h_
 
@@ -69,11 +68,11 @@ def GetVProjection(image):
             if image[y, x] == 255:
                 w_[x] += 1
     # image de projection vertical
-    for x in range(w):
-        for y in range(h-w_[x], h):
-            vProjection[y, x] = 255
-    print(w_)
-    showAndWaitKey('vProjection', vProjection)
+    # for x in range(w):
+    #     for y in range(h-w_[x], h):
+    #         vProjection[y, x] = 255
+    # print(w_)
+    # showAndWaitKey('vProjection', vProjection)
 
     return w_
 
@@ -90,7 +89,7 @@ def GetHWposition(H, w, img, ImageP):
     start = 0
     H_Start = []
     H_End = []
-    # Obtenez la position de division verticale en fonction de la projection horizontale
+    # stocker les positions horizontale de debut et de fin de chaque ligne de texte
     for i in range(len(H)):
         if H[i] > 10 and start ==0:
             H_Start.append(i)
@@ -102,12 +101,14 @@ def GetHWposition(H, w, img, ImageP):
     # Séparer la ligne, puis enregistre la position de séparation
     for i in range(len(H_Start)):
         # Obtenez une projection horizontale
-        cropImg = img[H_Start[i]:H_End[i], 0:w]
-        # cropImg2 = cv2.resize(cropImg, None, fx=1, fy=1)
-        cv2.imshow('cropImg', cropImg)
+        cropImg = img[H_Start[i]:H_End[i], 0:w] #image de chaque ligne de texte
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 5))
+        cropImgDilated = cv2.dilate(cropImg, kernel)
+        cv2.imshow('cropImgD', cropImgDilated)
+        cv2.waitKey(0)
 
         # Obtenez une projection vertical
-        W = GetVProjection(cropImg)
+        W = GetVProjection(cropImgDilated)
         Wstart = 0
         Wend = 0
         W_Start = 0
