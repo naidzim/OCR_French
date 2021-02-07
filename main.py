@@ -2,8 +2,41 @@ import Contour
 import rotate
 import projetction
 
+
+import pytesseract
+import cv2
+import numpy as np
+
+def opening(image):
+    kernel = np.ones((5, 5), np.uint8)
+    return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
+
+
 # définier l'image à traiter
 nomfichier = 'image3.jpg'
+
+# lettre = cv2.imread('imageA.png')
+# cv2.imshow('lettre', lettre)
+# cv2.waitKey(0)
+# lettre = cv2.cvtColor(lettre, cv2.COLOR_BGR2GRAY)
+# cv2.imshow('cvtColor', lettre)
+# cv2.waitKey(0)
+# lettre = cv2.threshold(lettre, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+# cv2.imshow('threshold', lettre)
+# cv2.waitKey(0)
+# retval, lettre = cv2.threshold(lettre, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+# cv2.imshow('threshold', lettre)
+# cv2.waitKey(0)
+#
+#
+# # text = pytesseract.image_to_string(lettre, lang='fra', config="-c tessedit"
+# #                                              "_char_whitelist=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+# #                                              " --psm 10"
+# #                                              " -l osd"
+# #                                              " ")
+# #
+# text = pytesseract.image_to_string(lettre, lang='fra', config=" --psm 10 --oem 3")
+# print(text)
 
 
 if nomfichier == 'image1.png' or nomfichier == 'image2.png':

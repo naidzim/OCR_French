@@ -72,7 +72,7 @@ def GetVProjection(image):
     for x in range(w):
         for y in range(h-w_[x], h):
             vProjection[y, x] = 255
-    # print(w_)
+    print(w_)
     showAndWaitKey('vProjection', vProjection)
 
     return w_
@@ -112,6 +112,7 @@ def GetHWposition(H, w, img, ImageP):
         Wend = 0
         W_Start = 0
         W_End = 0
+        cnt = 0
         for j in range(len(W)):
             if W[j] > 0 and Wstart == 0:
                 W_Start = j
@@ -121,7 +122,8 @@ def GetHWposition(H, w, img, ImageP):
                 W_End = j
                 Wstart = 0
                 Wend = 1
-            if Wend == 1:
+                cnt += 1
+            if cnt > 4 and Wend == 1:
                 Position.append([W_Start, H_Start[i], W_End, H_End[i]])
                 Wend = 0
 
@@ -133,6 +135,15 @@ def GetHWposition(H, w, img, ImageP):
          # print("Position[m][1]", Position[m][1])
          # print("Position[m][2]", Position[m][2])
          # print("Position[m][3]", Position[m][3])
+
+
+         # d = 2*Position[m][2] - last_x2
+         # if d > 20 :
+         #     cv2.rectangle(ImageP, (last_x2,  last_y2), (2*Position[m][0], 2*Position[m][1]),
+         #                   (0, 229, 255), 1)
+         # last_x2 = 2*Position[m][2]
+         # last_y2 = 2*Position[m][3]
+
 
     cv2.imshow('img', ImageP)
     cv2.waitKey(0)
@@ -164,16 +175,18 @@ def Reconna1(Position, ImageP):
 
 def Reconna2(Position, ImageP):
     img = cv2.cvtColor(ImageP, cv2.COLOR_BGR2GRAY)
-    retval, img = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+    retval, img = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY)
     showAndWaitKey('binary', img)
     dst = cv2.equalizeHist(img)
     for m in range(len(Position)):
-        lettre = dst[2*Position[m][1]:2*Position[m][3], 2*Position[m][0]:2*Position[m][2]]   # [y1,y2] [x1,x2]
+        lettre = dst[2*Position[m][1]-2:2*Position[m][3]+2, 2*Position[m][0]-2:2*Position[m][2]+2]   # [y1,y2] [x1,x2]
         lettre = cv2.resize(lettre, None, fx=2, fy=2)
         # lettre = cv2.vconcat([lettre, lettre, lettre])
 
         cv2.imshow('lettre', lettre)
-        text = pytesseract.image_to_string(lettre, lang='fra')
+
+        text = pytesseract.image_to_string(lettre, lang='fra', config=" --psm 10 --oem 3")
+
         print(text)
         cv2.waitKey(0)
         cv2.destroyWindow('lettre')
