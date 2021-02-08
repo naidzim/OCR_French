@@ -7,13 +7,13 @@ def Getimage(ImageP):
     # read image
     ImageP = cv2.imread(ImageP)
     ImageP = cv2.resize(ImageP, None, fx=0.5, fy=0.5)
-    cv2_show('ImageP', ImageP)
+    # cv2_show('ImageP', ImageP)
     # GRAY
     image = cv2.cvtColor(ImageP, cv2.COLOR_BGR2GRAY)
-    showAndWaitKey('gray', image)
+    # showAndWaitKey('gray', image)
     # binaire
     retval, img = cv2.threshold(image, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
-    showAndWaitKey('binary', img)
+    # showAndWaitKey('binary', img)
 
     imagec = img.copy()
     imagec = cv2.resize(imagec, None, fx=0.5, fy=0.5)
@@ -207,10 +207,9 @@ def getLigne(img) :
             start = 0
 
     for i in range(len(ligneDebut)):
-        print("positionLignes = (%d, %d)" % (ligneDebut[i], ligneFin[i]))
+        # print("positionLignes = (%d, %d)" % (ligneDebut[i], ligneFin[i]))
         positionLignes.append([ligneDebut[i], ligneFin[i]])
-
-    print("positionLignes = ", positionLignes)
+    # print("positionLignes = ", positionLignes)
 
     """Debug"""
     # for i in range(len(positionLignes)):
@@ -226,43 +225,43 @@ def getMots(img,positionLignes):
     positionMots=[]
 
     (h, w) = img.shape # dimension de l'image (height, width)
-
-    for i in range(len(positionLignes)):
+    # print (positionLignes )
+    # for i in range(len(positionLignes)):
         #projection horizontale pour separer les mots
-        lineImg = img[positionLignes[i][0]:positionLignes[i][1], 0:w]  # image de chaque ligne de texte    # [y1,y2] [x1,x2]
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 5))
-        lineImgDilated = cv2.dilate(lineImg, kernel)
+    lineImg = img[positionLignes[0]:positionLignes[1], 0:w]  # image de chaque ligne de texte    # [y1,y2] [x1,x2]
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 5))
+    lineImgDilated = cv2.dilate(lineImg, kernel)
 
-        # projection vertical pour separer les mots des lignes
-        W = GetVProjection(lineImgDilated)
-        Wstart = 0
-        Wend = 0
-        W_Start = 0
-        W_End = 0
+    # projection vertical pour separer les mots des lignes
+    W = GetVProjection(lineImgDilated)
+    Wstart = 0
+    Wend = 0
+    W_Start = 0
+    W_End = 0
 
-        for j in range(len(W)):
-            if W[j] > 0 and Wstart == 0:
-                W_Start = j
-                Wstart = 1
-                Wend = 0
-            if W[j] <= 0 and Wstart == 1:
-                W_End = j
-                Wstart = 0
-                Wend = 1
-            if Wend == 1:
-                positionMots.append([W_Start, W_End, positionLignes[i][0], positionLignes[i][1]])               # x1,x2 y1,y2
-                Wend = 0
+    for j in range(len(W)):
+        if W[j] > 0 and Wstart == 0:
+            W_Start = j
+            Wstart = 1
+            Wend = 0
+        if W[j] <= 0 and Wstart == 1:
+            W_End = j
+            Wstart = 0
+            Wend = 1
+        if Wend == 1:
+            positionMots.append([W_Start, W_End, positionLignes[0], positionLignes[1]])               # x1,x2 y1,y2
+            Wend = 0
 
-    """Debug"""
-    for i in range(len(positionMots)):
-        motImg = img[positionMots[i][2]:positionMots[i][3],positionMots[i][0]:positionMots[i][1]]               # [y1,y2] [x1,x2]
-        print("positionMots[i][2] = ", positionMots[i][2])
-        print("positionMots[i][3] = ", positionMots[i][3])
-        print("positionMots[i][0] = ", positionMots[i][0])
-        print("positionMots[i][1] = ", positionMots[i][1])
-        # cv2.imshow('motImg', motImg)
-        # cv2.waitKey()
-        # cv2.destroyWindow('motImg')
+    # """Debug"""
+    # for i in range(len(positionMots)):
+    #     motImg = img[positionMots[i][2]:positionMots[i][3],positionMots[i][0]:positionMots[i][1]]               # [y1,y2] [x1,x2]
+    #     print("positionMots[i][2] = ", positionMots[i][2])
+    #     print("positionMots[i][3] = ", positionMots[i][3])
+    #     print("positionMots[i][0] = ", positionMots[i][0])
+    #     print("positionMots[i][1] = ", positionMots[i][1])
+    #     # cv2.imshow('motImg', motImg)
+    #     # cv2.waitKey()
+    #     # cv2.destroyWindow('motImg')
 
     return positionMots
 
@@ -270,63 +269,64 @@ def getMots(img,positionLignes):
 def getCharactere(img, positionMots):
 
     positionChar = []
-    for i in range(len(positionMots)):
-        motImg = img[positionMots[i][2]:positionMots[i][3], positionMots[i][0]:positionMots[i][1]]               # [y1,y2] [x1,x2] 单词
-        motImgRes = cv2.resize(motImg, None, fx=2, fy=2)
-        # cv2.imshow('getCharactere-motImg resize', motImgRes)
-        # cv2.waitKey()
-        # cv2.destroyWindow('getCharactere-motImg resize')
 
-        (h, w) = motImg.shape
-        W = GetVProjection(motImg)
-        Wstart = 0
-        Wend = 0
-        W_Start = 0
-        W_End = 0
-        positionCharInt = []
-        for j in range(len(W)):
-            if W[j] > 0 and Wstart == 0:
-                W_Start = j
-                Wstart = 1
-                Wend = 0
-            if W[j] <= 0 and Wstart == 1:
-                W_End = j
-                Wstart = 0
-                Wend = 1
-            if Wend == 1:
-                positionCharInt.append([W_Start, W_End, 0, h])
-                                        # positionMots[i][2], positionMots[i][3]])        # x1,x2 y1,y2
-                Wend = 0
+    motImg = img[positionMots[2]:positionMots[3], positionMots[0]:positionMots[1]]           # [y1,y2] [x1,x2]
+    (h, w) = motImg.shape
+    W = GetVProjection(motImg)
+    Wstart = 0
+    Wend = 0
+    W_Start = 0
+    W_End = 0
+    for j in range(len(W)):
+        if W[j] > 0 and Wstart == 0:
+            W_Start = j
+            Wstart = 1
+            Wend = 0
+        if W[j] <= 0 and Wstart == 1:
+            W_End = j
+            Wstart = 0
+            Wend = 1
+        if Wend == 1:
+            positionChar.append([W_Start, W_End, 0, h])
+                                    # positionMots[i][2], positionMots[i][3]])        # x1,x2 y1,y2
+            Wend = 0
 
-        positionChar.append(positionCharInt)                                        # position de char dans motImg
+    mot = ''
+    for j in range(len(positionChar)):
+            # charImg = motImg[positionChar[i][j][2]:positionChar[i][j][3], positionChar[i][j][0]:positionChar[i][j][1]]      # [y1,y2] [x1,x2]
+            charImg = motImg[0:h+3, positionChar[j][0]-3:positionChar[j][1]+2]  # [y1,y2] [x1,x2]
+            #cv2.threshold(charImg, 0, 255, cv2.THRESH_BINARY_INV)
+            charImg = cv2.resize(charImg,None,fx=6, fy=6 )
 
-    for i in range(len(positionChar)):
-        print("positionChar[%d] = " % i, positionChar[i])                        # x1,x2 y1,y2
+            thresh = cv2.threshold(charImg, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+            # blur = cv2.GaussianBlur(charImg, (7, 7), 0)
+            result = 255- thresh
+            # cv2.imshow('charImg', blur)
 
-    # for i in range(len(positionMots)):
-    #     motImg = img[positionMots[i][2]:positionMots[i][3], positionMots[i][0]:positionMots[i][1]]       # [y1,y2] [x1,x2]
-    #     motImgRes = cv2.resize(motImg, None, fx=2, fy=2)
-    #     cv2.imshow('motImg', motImg)
-    #     cv2.imshow('motImgRes', motImgRes)
-    #     cv2.waitKey()
+            # cv2.imshow('thresh', thresh)
+            # cv2.imshow('result', result)
 
-    for i in range(len(positionMots)):
-        print("positionMots[%d] = " % i, positionMots[i])
-        print("positionMots[%d] = " % (i+1), positionMots[i+1])
-        print("positionChar[%d] " % i, positionChar[i])
-        motImg = img[positionMots[i][2]:positionMots[i][3], positionMots[i][0]:positionMots[i][1]]
-        for j in range(len(positionChar[i])):
-                # charImg = motImg[positionChar[i][j][2]:positionChar[i][j][3], positionChar[i][j][0]:positionChar[i][j][1]]      # [y1,y2] [x1,x2]
-                charImg = motImg[0:h, positionChar[i][j][0]:positionChar[i][j][1]]  # [y1,y2] [x1,x2]
-                cv2.imshow('motImg', motImg)
-                cv2.waitKey()
-                print("positionChar[i][j][0] = ", positionChar[i][j][0])
-                print("positionChar[i][j][1] = ", positionChar[i][j][1])
-                cv2.imshow('charImg', charImg)
-                cv2.waitKey()
-                cv2.destroyWindow('charImg')
-        cv2.destroyWindow('motImg')
+            text = pytesseract.image_to_string(result, lang='fra', config=" --psm 13 ")
 
+            string = text[0:len(text) - 2]
+            # print(string, end='')
+            mot = mot + string
+            # cv2.waitKey()
+            # cv2.destroyAllWindows()
+
+    return mot
+
+def imageToText(img):
+    text=''
+    positionLignes = getLigne(img)
+    for i in range(len(positionLignes)) : #nb de ligne
+        positionMots = getMots(img,positionLignes[i])
+        for j in range (len(positionMots)) : #nb de mots dans chaque ligne
+            mot = getCharactere(img,positionMots[j])
+            text += mot + ' '
+        text += "\n"
+    print(text)
+    return text
 
 def Reconna1(Position, ImageP):
     img = cv2.cvtColor(ImageP, cv2.COLOR_BGR2GRAY)
@@ -388,9 +388,10 @@ if __name__ == "__main__":
     # Projection
     # W = GetVProjection(imagec)
 
-    positionLignes = getLigne(imagec)
-    positionMots = getMots(imagec,positionLignes)
-    getCharactere(imagec,positionMots)
+    # positionLignes = getLigne(imagec)
+    # positionMots = getMots(imagec,positionLignes)
+    # getCharactere(imagec,positionMots)
+    text = imageToText(imagec)
     #positionMots, positionChar  = GetHWposition(H, w, imagec, ImageP)
     # Reconna2(positionMots, positionChar, ImageP)
 
