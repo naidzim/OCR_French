@@ -72,7 +72,7 @@ def GetVProjection(image):
     for x in range(w):
         for y in range(h-w_[x], h):
             vProjection[y, x] = 255
-    print(w_)
+    # print(w_)
     showAndWaitKey('vProjection', vProjection)
 
     return w_
@@ -83,16 +83,17 @@ def GetHWposition(H, w, img, ImageP):
     :param H: H = GetHProjection
     :param w: w = (h, w) = imagec.shape
     :param img: image binaire resize
-    :param ImageP:
+    :param ImageP: image originale resize
     :return:
     """
     Position = []
+    espacePosition = []
     start = 0
     H_Start = []
     H_End = []
     # Obtenez la position de division verticale en fonction de la projection horizontale
     for i in range(len(H)):
-        if H[i] > 10 and start ==0:
+        if H[i] > 10 and start == 0:
             H_Start.append(i)
             start = 1
         if H[i] <= 10 and start == 1:
@@ -106,13 +107,59 @@ def GetHWposition(H, w, img, ImageP):
         # cropImg2 = cv2.resize(cropImg, None, fx=1, fy=1)
         cv2.imshow('cropImg', cropImg)
 
+        # Séparer les mots
+        kernel = np.ones((7, 7), np.uint8)
+        dilation = cv2.dilate(cropImg, kernel, iterations = 1)
+        # cv2.imshow('dilation', dilation)
+
+        W = GetVProjection(dilation)
+        motstart = 0
+        motend = 0
+        espace_Start = 0
+        espace_End = 0
+        for j in range(len(W)):
+            if W[j] > 0 and motstart == 0:
+                motstart = 1
+            if W[j] <= 0 and motstart == 1:
+                espace_Start = j
+                print("espace_Start = ", espace_Start)
+                motstart = 0
+                motend = 1
+            if motend == 1 and W[j] > 0:
+                espace_End = j
+                print("espace_End = ", espace_End)
+                espacePosition.append([espace_Start, H_Start[i], espace_End, H_End[i]])
+                print("espacePosition = ", espacePosition)
+                motstart = 1
+                motend = 0
+
+        # contour de espace
+    print(espacePosition)
+    for m in range(len(espacePosition)):
+        # cv2.rectangle(ImageP, (Position[m][0], Position[m][1]), (Position[m][2], Position[m][3]), (0, 229, 238), 1)      # x1,y1 x2,y2
+        cv2.rectangle(ImageP, (2 * espacePosition[m][0], 2 * espacePosition[m][1]), (2 * espacePosition[m][2], 2 * espacePosition[m][3]),
+                      (0, 229, 255), 1)
+        print("Position[m][0]", espacePosition[m][0])
+        print("Position[m][1]", espacePosition[m][1])
+        print("Position[m][2]", espacePosition[m][2])
+        print("Position[m][3]", espacePosition[m][3])
+
+    cv2.imshow('imgespace', ImageP)
+    cv2.waitKey(0)
+
+
+
+    for i in range(len(H_Start)):
+        # Obtenez une projection horizontale
+        cropImg = img[H_Start[i]:H_End[i], 0:w]
+        # cropImg2 = cv2.resize(cropImg, None, fx=1, fy=1)
+        cv2.imshow('cropImg', cropImg)
         # Obtenez une projection vertical
         W = GetVProjection(cropImg)
         Wstart = 0
         Wend = 0
         W_Start = 0
         W_End = 0
-        cnt = 0
         for j in range(len(W)):
             if W[j] > 0 and Wstart == 0:
                 W_Start = j
@@ -122,8 +169,7 @@ def GetHWposition(H, w, img, ImageP):
                 W_End = j
                 Wstart = 0
                 Wend = 1
-                cnt += 1
-            if cnt > 4 and Wend == 1:
+            if Wend == 1:
                 Position.append([W_Start, H_Start[i], W_End, H_End[i]])
                 Wend = 0
 
@@ -135,15 +181,6 @@ def GetHWposition(H, w, img, ImageP):
          # print("Position[m][1]", Position[m][1])
          # print("Position[m][2]", Position[m][2])
          # print("Position[m][3]", Position[m][3])
-
-
-         # d = 2*Position[m][2] - last_x2
-         # if d > 20 :
-         #     cv2.rectangle(ImageP, (last_x2,  last_y2), (2*Position[m][0], 2*Position[m][1]),
-         #                   (0, 229, 255), 1)
-         # last_x2 = 2*Position[m][2]
-         # last_y2 = 2*Position[m][3]
-
 
     cv2.imshow('img', ImageP)
     cv2.waitKey(0)
@@ -157,15 +194,6 @@ def Reconna1(Position, ImageP):
     showAndWaitKey('binary', img)
     dst = cv2.equalizeHist(img)
 
-    # for m in range(len(Position)):
-    #     lettre = dst[2*Position[m][1]-5:2*Position[m][3]+5, 2*Position[m][0]-5:2*Position[m][2]+5]   # [y1,y2] [x1,x2]
-    #     lettre = cv2.resize(lettre, None, fx=2, fy=2)
-    #     if m == 0:
-    #         llettre = lettre
-    #     else:
-    #         llettre = cv2.hconcat([llettre, lettre])
-
-    # cv2.imshow('llettre', llettre)
     cv2.imshow('lettre', dst)
     text = pytesseract.image_to_string(dst, lang='fra')
     print(text)
@@ -179,13 +207,15 @@ def Reconna2(Position, ImageP):
     showAndWaitKey('binary', img)
     dst = cv2.equalizeHist(img)
     for m in range(len(Position)):
-        lettre = dst[2*Position[m][1]-2:2*Position[m][3]+2, 2*Position[m][0]-2:2*Position[m][2]+2]   # [y1,y2] [x1,x2]
+        lettre = dst[2*Position[m][1]:2*Position[m][3], 2*Position[m][0]:2*Position[m][2]]   # [y1,y2] [x1,x2]
         lettre = cv2.resize(lettre, None, fx=2, fy=2)
         # lettre = cv2.vconcat([lettre, lettre, lettre])
 
         cv2.imshow('lettre', lettre)
 
-        text = pytesseract.image_to_string(lettre, lang='fra', config=" --psm 10 --oem 3")
+        text = pytesseract.image_to_string(dst, lang='myfra', config=" --psm 10")
+
+        # text = pytesseract.image_to_string(lettre, lang='fra', config=" --psm 10 --oem 3")
 
         print(text)
         cv2.waitKey(0)

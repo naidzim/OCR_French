@@ -5,17 +5,17 @@ import projetction
 
 import pytesseract
 import cv2
-import numpy as np
-
-def opening(image):
-    kernel = np.ones((5, 5), np.uint8)
-    return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
-
 
 # définier l'image à traiter
-nomfichier = 'image3.jpg'
+nomfichier = 'image4.jpg'
 
-# lettre = cv2.imread('imageA.png')
+
+lettre = cv2.imread('imagerotate.jpg')
+text = pytesseract.image_to_string(lettre, lang='myfra')
+
+print(text)
+
+# lettre = cv2.imread('imagerotate.jpg')
 # cv2.imshow('lettre', lettre)
 # cv2.waitKey(0)
 # lettre = cv2.cvtColor(lettre, cv2.COLOR_BGR2GRAY)
@@ -35,6 +35,7 @@ nomfichier = 'image3.jpg'
 # #                                              " -l osd"
 # #                                              " ")
 # #
+
 # text = pytesseract.image_to_string(lettre, lang='fra', config=" --psm 10 --oem 3")
 # print(text)
 
