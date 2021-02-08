@@ -303,12 +303,13 @@ def getCharactere(img,positionMots):
         motImgRes = cv2.resize(motImg, None, fx=2, fy=2)
         cv2.imshow('motImg',motImgRes)
         cv2.waitKey()
+
+        for j in range (len(positionChar[i])):
+                charImg = motImg[positionChar[i][j][2]:positionChar[i][j][3],positionChar[i][j][0]:positionChar[i][j][1]]
+                cv2.imshow('charImg', charImg)
+                cv2.waitKey()
+                cv2.destroyWindow('charImg')
         cv2.destroyWindow('motImg')
-        # for j in range (len(positionChar[i])):
-        #         charImg = motImgRes[positionChar[i][j][2]:positionChar[i][j][3],positionChar[i][j][0]:positionChar[i][j][1]]
-        #         cv2.imshow('charImg', charImg)
-        #         cv2.waitKey()
-        #         cv2.destroyWindow('charImg')
 
 
 def Reconna1(Position, ImageP):
